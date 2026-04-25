@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FollowUp</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_settings">Settings</string>
+    
+    <!-- Home Screen -->
+    <string name="tab_pending">Pending</string>
+    <string name="tab_today">Today</string>
+    <string name="tab_overdue">Overdue</string>
+    <string name="tab_done">Done</string>
+    
+    <string name="empty_pending">No pending reminders</string>
+    <string name="empty_today">No reminders for today</string>
+    <string name="empty_overdue">No overdue reminders</string>
+    <string name="empty_done">No completed reminders</string>
+    <string name="empty_subtitle">Tap + to add a reminder</string>
+    
+    <string name="swipe_done">Mark Done</string>
+    <string name="swipe_snooze">Snooze</string>
+    
+    <!-- Add Reminder -->
+    <string name="add_reminder_title">New Reminder</string>
+    <string name="label_name">Name</string>
+    <string name="label_name_hint">Who to reply to</string>
+    <string name="label_message">Message (optional)</string>
+    <string name="label_message_hint">What to reply about</string>
+    <string name="label_when">When</string>
+    
+    <string name="time_30min">30 min</string>
+    <string name="time_1hour">1 hour</string>
+    <string name="time_tonight">Tonight</string>
+    <string name="time_tomorrow">Tomorrow</string>
+    <string name="time_custom">Custom</string>
+    
+    <string name="action_save">Save Reminder</string>
+    <string name="action_cancel">Cancel</string>
+    
+    <!-- Snooze -->
+    <string name="snooze_title">Snooze</string>
+    <string name="snooze_15min">15 min</string>
+    <string name="snooze_30min">30 min</string>
+    <string name="snooze_1hour">1 hour</string>
+    <string name="snooze_custom">Custom</string>
+    
+    <!-- Stats -->
+    <string name="stats_streak_title">Current Streak</string>
+    <string name="stats_streak_subtitle">days of clearing all reminders</string>
+    <string name="stats_pending_title">Pending</string>
+    <string name="stats_done_title">Completed</string>
+    <string name="stats_total_title">Total</string>
+    
+    <!-- Settings -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_dark_mode_subtitle">Use dark theme</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notification_style">Notification Style</string>
+    <string name="settings_style_soft">Soft</string>
+    <string name="settings_style_aggressive">Aggressive</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version 1.0</string>
+    
+    <!-- Time display -->
+    <string name="time_now">Now</string>
+    <string name="time_minutes">%d min</string>
+    <string name="time_hours">%d hr</string>
+    <string name="time_days">%d days</string>
+    <string name="overdue">Overdue</string>
+    <string name="time_overdue">Overdue</string>
+</resources>
