@@ -29,8 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentTick
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -119,7 +117,7 @@ fun SnoozeBottomSheet(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) {
-                                haptic.performHapticFeedback(SegmentTick)
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                 selectedDuration = duration
                             }
                             .background(
@@ -157,7 +155,7 @@ fun SnoozeBottomSheet(
 
             Button(
                 onClick = {
-                    haptic.performHapticFeedback(Confirm)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onSnooze(selectedDuration)
                 },
                 modifier = Modifier.fillMaxWidth(),

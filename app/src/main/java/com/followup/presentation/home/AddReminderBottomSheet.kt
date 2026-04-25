@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -54,8 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentTick
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -237,7 +236,7 @@ fun AddReminderBottomSheet(
                     FilterChip(
                         selected = isSelected,
                         onClick = {
-                            haptic.performHapticFeedback(SegmentTick)
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             selectedPreset = preset
                             customTime = null
                             keyboardController?.hide()
@@ -276,7 +275,7 @@ fun AddReminderBottomSheet(
                 FilterChip(
                     selected = isCustomSelected,
                     onClick = {
-                        haptic.performHapticFeedback(SegmentTick)
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         showTimePicker = true
                         keyboardController?.hide()
                     },
@@ -311,7 +310,7 @@ fun AddReminderBottomSheet(
             // Primary action button
             Button(
                 onClick = {
-                    haptic.performHapticFeedback(Confirm)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     keyboardController?.hide()
                     onSave(name.trim(), message.trim().takeIf { it.isNotBlank() }, effectiveTime)
                 },
@@ -357,7 +356,7 @@ fun AddReminderBottomSheet(
             onDismiss = { showTimePicker = false },
             onConfirm = { timestamp ->
                 customTime = timestamp
-                selectedPreset = null
+                selectedPreset = TimePreset.MINUTES_30
                 showTimePicker = false
             }
         )

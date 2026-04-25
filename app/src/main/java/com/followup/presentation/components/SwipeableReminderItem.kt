@@ -36,8 +36,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.SegmentFrequentTick
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -62,12 +60,12 @@ fun SwipeableReminderItem(
         confirmValueChange = { value ->
             when (value) {
                 SwipeToDismissBoxValue.EndToStart -> {
-                    haptic.performHapticFeedback(Confirm)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     currentOnSnooze()
                     false
                 }
                 SwipeToDismissBoxValue.StartToEnd -> {
-                    haptic.performHapticFeedback(Confirm)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     currentOnDone()
                     false
                 }
@@ -80,7 +78,7 @@ fun SwipeableReminderItem(
     // Progress-based haptic (subtle feedback at 50% threshold)
     LaunchedEffect(dismissState.progress) {
         if (dismissState.progress > 0.5f && !hasTriggeredHaptic) {
-            haptic.performHapticFeedback(SegmentFrequentTick)
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             hasTriggeredHaptic = true
         } else if (dismissState.progress < 0.3f) {
             hasTriggeredHaptic = false

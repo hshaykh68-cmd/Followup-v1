@@ -55,7 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -179,7 +178,7 @@ fun HomeScreen(
                         filter = targetFilter,
                         isLoading = uiState.isLoading,
                         onMarkDone = { reminder ->
-                            haptic.performHapticFeedback(Confirm)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             viewModel.markAsDone(reminder.id)
                             scope.launch {
                                 snackbarHostState.showSnackbar("Marked as done")
