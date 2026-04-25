@@ -9,12 +9,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.ZoneId
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Implementation of ReminderRepository.
  * Maps between domain models and database entities.
  */
-class ReminderRepositoryImpl(
+@Singleton
+class ReminderRepositoryImpl @Inject constructor(
     private val reminderDao: ReminderDao
 ) : ReminderRepository {
 
