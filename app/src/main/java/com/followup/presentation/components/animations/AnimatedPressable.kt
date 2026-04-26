@@ -100,26 +100,20 @@ fun Modifier.pressableScale(
     val scale = remember { Animatable(1f) }
 
     pointerInput(scalePressed) {
-        while (true) {
-            val pointer = awaitPointerEventScope {
+        awaitPointerEventScope {
+            while (true) {
                 awaitFirstDown()
-            }
-            
-            // Immediate press feedback
-            awaitPointerEventScope {
+                
+                // Immediate press feedback
                 launch {
                     scale.snapTo(scalePressed)
                     onPress?.invoke()
                 }
-            }
-            
-            // Wait for release
-            awaitPointerEventScope {
+                
+                // Wait for release
                 waitForUpOrCancellation()
-            }
-            
-            // Release animation
-            awaitPointerEventScope {
+                
+                // Release animation
                 launch {
                     scale.animateTo(
                         targetValue = 1f,

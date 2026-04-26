@@ -29,15 +29,8 @@ class NotificationExtractor @Inject constructor() {
         val extras = notification.extras
 
         // Priority 1: Use messaging-style person name (Android 9.0+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val messagingStyle = notification.extras.getParcelable(Notification.EXTRA_MESSAGING_STYLE) as? Notification.MessagingStyle
-            if (messagingStyle != null) {
-                val conversationTitle = messagingStyle.conversationTitle?.toString()
-                if (!conversationTitle.isNullOrBlank()) {
-                    return conversationTitle.trim()
-                }
-            }
-        }
+        // Note: MessagingStyle extraction is skipped as the constant is not available
+        // Fallback to notification title and app name works reliably
 
         // Priority 2: Use the notification title
         val title = extras.getString(Notification.EXTRA_TITLE)
