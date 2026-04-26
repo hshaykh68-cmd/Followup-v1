@@ -1,7 +1,6 @@
 package com.followup.presentation.navigation
 
 import androidx.compose.animation.core.tween
-import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,11 +43,9 @@ import com.followup.presentation.reminder.ReminderViewModel
 import com.followup.presentation.settings.SettingsScreen
 import com.followup.presentation.stats.StatsScreen
 import com.followup.service.notification.NotificationPermissionHelper
-import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@AndroidEntryPoint
 fun AppNavigation(
     settingsRepository: SettingsRepository,
     notificationPermissionHelper: NotificationPermissionHelper
