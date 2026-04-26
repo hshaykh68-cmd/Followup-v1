@@ -25,7 +25,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import com.followup.presentation.theme.ScaleValues
-import kotlinx.coroutines.coroutineScope
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -96,36 +96,35 @@ fun Modifier.pressableScale(
     onRelease: (() -> Unit)? = null
 ): Modifier = composed {
     val scale = remember { Animatable(1f) }
+    val coroutineScope = rememberCoroutineScope()
 
     pointerInput(scalePressed) {
-        coroutineScope {
-            while (true) {
-                val down = awaitFirstDown()
+        while (true) {
+            val down = awaitFirstDown()
 
-                // Immediate press feedback
-                launch {
-                    scale.snapTo(scalePressed)
-                    onPress?.invoke()
-                }
+            // Immediate press feedback
+            coroutineScope.launch {
+                scale.snapTo(scalePressed)
+                onPress?.invoke()
+            }
 
-                // Wait for release
-                val up = waitForUpOrCancellation()
+            // Wait for release
+            val up = waitForUpOrCancellation()
 
-                // Release animation
-                launch {
-                    if (up != null) {
-                        scale.animateTo(
-                            targetValue = 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            )
+            // Release animation
+            coroutineScope.launch {
+                if (up != null) {
+                    scale.animateTo(
+                        targetValue = 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium
                         )
-                        onRelease?.invoke()
-                    } else {
-                        // Cancelled - reset immediately
-                        scale.snapTo(1f)
-                    }
+                    )
+                    onRelease?.invoke()
+                } else {
+                    // Cancelled - reset immediately
+                    scale.snapTo(1f)
                 }
             }
         }
