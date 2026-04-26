@@ -2,50 +2,65 @@ package com.followup.presentation.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,8 +68,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +87,15 @@ import com.followup.presentation.components.EmptyState
 import com.followup.presentation.components.SwipeableReminderItem
 import com.followup.presentation.reminder.ReminderFilter
 import com.followup.presentation.reminder.ReminderViewModel
+import com.followup.presentation.theme.AnimationDuration
+import com.followup.presentation.theme.ComponentTokens
+import com.followup.presentation.theme.CornerRadius
+import com.followup.presentation.theme.Elevation
+import com.followup.presentation.theme.ScaleValues
+import com.followup.presentation.theme.Screen
+import com.followup.presentation.theme.Spacing
+import com.followup.presentation.theme.Stagger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,26 +124,12 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = true,
-                enter = scaleIn(animationSpec = tween(300)),
-                exit = scaleOut(animationSpec = tween(300))
-            ) {
-                FloatingActionButton(
-                    onClick = { 
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        showAddBottomSheet = true 
-                    },
-                    shape = MaterialTheme.shapes.extraLarge,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_reminder_title)
-                    )
-                }
-            }
+            PremiumAnimatedFAB(
+                onClick = { 
+                    showAddBottomSheet = true 
+                },
+                pendingCount = pendingCount
+            )
         },
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
@@ -136,40 +153,43 @@ fun HomeScreen(
                 ReminderFilter.DONE to stringResource(R.string.tab_done)
             )
 
-            PrimaryTabRow(
-                selectedTabIndex = tabs.indexOfFirst { it.first == uiState.selectedFilter },
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ) {
-                tabs.forEach { (filter, label) ->
-                    Tab(
-                        selected = uiState.selectedFilter == filter,
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            viewModel.setFilter(filter)
-                        },
-                        text = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = if (uiState.selectedFilter == filter) 
-                                        FontWeight.SemiBold else FontWeight.Medium
-                                )
-                            )
-                        }
-                    )
+            // MODERN PILL-STYLE TABS: Floating tab bar with animated selection pill
+            ModernTabRow(
+                tabs = tabs,
+                selectedFilter = uiState.selectedFilter,
+                onTabSelected = { filter ->
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    viewModel.setFilter(filter)
                 }
-            }
+            )
 
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
+                // PREMIUM TAB CONTENT: Slide + fade with direction based on tab order
                 AnimatedContent(
                     targetState = uiState.selectedFilter,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(300)) togetherWith 
-                        fadeOut(animationSpec = tween(300))
+                        val targetIndex = targetState.ordinal
+                        val initialIndex = initialState.ordinal
+                        val slideDirection = if (targetIndex > initialIndex) 1 else -1
+                        
+                        (fadeIn(
+                            animationSpec = tween(250, easing = FastOutSlowInEasing)
+                        ) + slideInHorizontally(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            ),
+                            initialOffsetX = { fullWidth -> fullWidth / 5 * slideDirection }
+                        )) togetherWith (
+                            fadeOut(
+                                animationSpec = tween(200, easing = FastOutSlowInEasing)
+                            ) + slideOutHorizontally(
+                                animationSpec = tween(200, easing = FastOutSlowInEasing),
+                                targetOffsetX = { fullWidth -> -fullWidth / 5 * slideDirection }
+                            )
+                        )
                     },
                     label = "tab_content"
                 ) { targetFilter ->
@@ -277,14 +297,18 @@ private fun ReminderList(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 4.dp)
+                    // TOP PADDING: Small offset from tabs (8dp)
+                    // BOTTOM PADDING: Space for FAB clearance (80dp)
+                    contentPadding = PaddingValues(top = Spacing.xs, bottom = 80.dp)
                 ) {
-                    items(
+                    itemsIndexed(
                         items = reminders,
-                        key = { "${filter.name}_${it.id}" }
-                    ) { reminder ->
-                        AnimatedListItem(
+                        key = { index, reminder -> "${filter.name}_${reminder.id}" }
+                    ) { index, reminder ->
+                        PremiumAnimatedListItem(
                             reminder = reminder,
+                            index = index,
+                            totalItems = reminders.size,
                             onMarkDone = onMarkDone,
                             onSnooze = onSnooze
                         )
@@ -295,60 +319,398 @@ private fun ReminderList(
     }
 }
 
+/**
+ * PREMIUM ANIMATED LIST ITEM
+ * Staggered entrance with fade + slide + scale
+ */
 @Composable
-private fun AnimatedListItem(
+private fun PremiumAnimatedListItem(
     reminder: Reminder,
+    index: Int,
+    totalItems: Int,
     onMarkDone: (Reminder) -> Unit,
     onSnooze: (Reminder) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val transitionState = remember {
-        MutableTransitionState(false).apply { targetState = true }
+    val density = LocalDensity.current
+    val slideDistancePx = remember { with(density) { 40.dp.toPx() } }
+    
+    // Calculate stagger delay
+    val staggerDelay = remember(index, totalItems) {
+        val rawDelay = index * Stagger.LIST_ITEM_DELAY
+        if (totalItems > 6) {
+            (rawDelay.coerceAtMost(Stagger.MAX_STAGGER_TIME) * (6f / totalItems)).toLong()
+        } else {
+            rawDelay.coerceAtMost(Stagger.MAX_STAGGER_TIME)
+        }
     }
+    
+    // Animation states
+    val alpha = remember { Animatable(0f) }
+    val scale = remember { Animatable(0.92f) }
+    val offsetY = remember { Animatable(slideDistancePx) }
+    var hasAnimatedIn by remember { mutableStateOf(false) }
 
-    val transition = updateTransition(transitionState, label = "item_transition")
-
-    val offset by transition.animateFloat(
-        label = "offset",
-        transitionSpec = {
-            spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
+    // Staggered entrance animation
+    LaunchedEffect(reminder.id) {
+        // Reset for new items
+        alpha.snapTo(0f)
+        scale.snapTo(0.92f)
+        offsetY.snapTo(slideDistancePx)
+        hasAnimatedIn = false
+        
+        delay(staggerDelay)
+        
+        launch {
+            alpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = AnimationDuration.EMPHASIZED,
+                    easing = FastOutSlowInEasing
+                )
             )
         }
-    ) { visible ->
-        if (visible) 0f else 100f
-    }
-
-    val alpha by transition.animateFloat(
-        label = "alpha",
-        transitionSpec = { tween(300) }
-    ) { visible ->
-        if (visible) 1f else 0f
-    }
-
-    val scale by transition.animateFloat(
-        label = "scale",
-        transitionSpec = {
-            spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
+        launch {
+            scale.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
             )
         }
-    ) { visible ->
-        if (visible) 1f else 0.9f
+        launch {
+            offsetY.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+        }
+        hasAnimatedIn = true
     }
 
     Box(
         modifier = modifier
-            .offset(y = offset.dp)
-            .alpha(alpha)
-            .then(Modifier.graphicsLayer { scaleX = scale; scaleY = scale })
+            .alpha(alpha.value)
+            .graphicsLayer {
+                scaleX = scale.value
+                scaleY = scale.value
+                translationY = offsetY.value
+            }
     ) {
         SwipeableReminderItem(
             reminder = reminder,
             onDone = { onMarkDone(reminder) },
             onSnooze = { onSnooze(reminder) }
         )
+    }
+}
+
+/**
+ * PREMIUM ANIMATED TAB ROW
+ * Sliding indicator pill with press feedback
+ */
+@Composable
+private fun ModernTabRow(
+    tabs: List<Pair<ReminderFilter, String>>,
+    selectedFilter: ReminderFilter,
+    onTabSelected: (ReminderFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptic = LocalHapticFeedback.current
+    val density = LocalDensity.current
+    val selectedIndex = tabs.indexOfFirst { it.first == selectedFilter }
+    
+    // Track tab positions for sliding indicator
+    val tabPositions = remember { mutableStateListOf<Float>() }
+    val tabWidths = remember { mutableStateListOf<Float>() }
+    
+    // Indicator animation
+    val indicatorOffset = remember { Animatable(0f) }
+    val indicatorWidth = remember { Animatable(0f) }
+
+    // Animate indicator to selected tab
+    LaunchedEffect(selectedIndex, tabPositions, tabWidths) {
+        if (selectedIndex >= 0 && selectedIndex < tabPositions.size) {
+            val targetOffset = tabPositions[selectedIndex]
+            val targetWidth = tabWidths[selectedIndex]
+            
+            launch {
+                indicatorOffset.animateTo(
+                    targetValue = targetOffset,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
+            launch {
+                indicatorWidth.animateTo(
+                    targetValue = targetWidth,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.md, vertical = Spacing.sm)
+    ) {
+        // Floating container with subtle background
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    shape = RoundedCornerShape(CornerRadius.xl)
+                )
+                .padding(Spacing.xs),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            // Sliding indicator pill (positioned absolutely)
+            Box(
+                modifier = Modifier
+                    .offset(x = with(density) { indicatorOffset.value.toDp() })
+                    .width(with(density) { indicatorWidth.value.toDp() })
+                    .height(40.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(CornerRadius.lg)
+                    )
+            )
+
+            // Tab buttons overlay
+            tabs.forEachIndexed { index, (filter, label) ->
+                val isSelected = selectedIndex == index
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                val scale = remember { Animatable(1f) }
+
+                // Press feedback
+                LaunchedEffect(isPressed) {
+                    if (isPressed) {
+                        scale.animateTo(
+                            targetValue = ScaleValues.PRESSED,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessHigh
+                            )
+                        )
+                    } else {
+                        scale.animateTo(
+                            targetValue = 1f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .scale(scale.value)
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            if (filter != selectedFilter) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onTabSelected(filter)
+                            }
+                        }
+                        .onGloballyPositioned { layoutCoordinates ->
+                            val position = layoutCoordinates.positionInParent().x
+                            val width = layoutCoordinates.size.width.toFloat()
+                            if (tabPositions.size > index) {
+                                tabPositions[index] = position
+                                tabWidths[index] = width
+                            } else {
+                                tabPositions.add(position)
+                                tabWidths.add(width)
+                            }
+                        }
+                        .padding(vertical = Spacing.sm, horizontal = Spacing.xs),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Animated text weight
+                    val animatedWeight by animateFloatAsState(
+                        targetValue = if (isSelected) 600f else 500f,
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessMedium,
+                            dampingRatio = Spring.DampingRatioNoBouncy
+                        ),
+                        label = "tab_weight"
+                    )
+
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight(animatedWeight.toInt()),
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * PREMIUM ANIMATED FAB
+ * Entrance animation + press feedback + optional pulse when items pending
+ */
+@Composable
+private fun PremiumAnimatedFAB(
+    onClick: () -> Unit,
+    pendingCount: Int,
+    modifier: Modifier = Modifier
+) {
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    // Entrance animation
+    val entranceScale = remember { Animatable(0f) }
+    val entranceAlpha = remember { Animatable(0f) }
+    
+    // Press animation
+    val pressScale = remember { Animatable(1f) }
+    val elevation = remember { Animatable(Elevation.high.value) }
+    
+    // Pulse animation for attention when there are pending items
+    val infiniteTransition = rememberInfiniteTransition(label = "fab_pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (pendingCount > 0) 1.03f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = androidx.compose.animation.core.EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse"
+    )
+
+    // Entrance animation - pop in with bounce
+    LaunchedEffect(Unit) {
+        entranceScale.animateTo(
+            targetValue = 1f,
+            animationSpec = keyframes {
+                durationMillis = 500
+                0f at 0
+                1.1f at 300
+                1f at 500
+            }
+        )
+        entranceAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(300, easing = FastOutSlowInEasing)
+        )
+    }
+
+    // Press feedback
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            launch {
+                pressScale.animateTo(
+                    targetValue = ScaleValues.EMPHASIZED_PRESSED,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessHigh
+                    )
+                )
+            }
+            launch {
+                elevation.animateTo(
+                    targetValue = Elevation.raised.value,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessHigh
+                    )
+                )
+            }
+        } else {
+            launch {
+                pressScale.animateTo(
+                    targetValue = 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
+            launch {
+                elevation.animateTo(
+                    targetValue = Elevation.high.value,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
+        }
+    }
+
+    val finalScale = if (!isPressed && pendingCount > 0) pulseScale else 1f
+    val combinedScale = entranceScale.value * pressScale.value * finalScale
+
+    Box(
+        modifier = modifier
+            .height(56.dp)
+            .padding(end = Spacing.xs, bottom = Spacing.md)
+            .graphicsLayer {
+                scaleX = combinedScale
+                scaleY = combinedScale
+                alpha = entranceAlpha.value
+                shadowElevation = elevation.value
+            }
+            .shadow(
+                elevation = elevation.value.dp,
+                shape = RoundedCornerShape(CornerRadius.xl),
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            )
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(CornerRadius.xl)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onClick()
+            }
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "New",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        }
     }
 }

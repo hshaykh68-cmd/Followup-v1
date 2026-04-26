@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main App Theme (Night) -->
+    <style name="Theme.FollowUp" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- Splash Screen Theme - Night Mode -->
+    <style name="Theme.FollowUp.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background_night</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_background_night</item>
+        <item name="windowSplashScreenAnimationDuration">600</item>
+        <item name="postSplashScreenTheme">@style/Theme.FollowUp</item>
+        <item name="android:statusBarColor">@color/splash_background_night</item>
+        <item name="android:navigationBarColor">@color/splash_background_night</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

@@ -1,5 +1,9 @@
 package com.followup.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -19,10 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -31,17 +35,40 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.followup.R
+import com.followup.domain.repository.SettingsRepository
 import com.followup.presentation.home.HomeScreen
+import com.followup.presentation.onboarding.NotificationPermissionScreen
+import com.followup.presentation.onboarding.OnboardingScreen
 import com.followup.presentation.reminder.ReminderViewModel
 import com.followup.presentation.settings.SettingsScreen
 import com.followup.presentation.stats.StatsScreen
-import com.followup.R
+import com.followup.service.notification.NotificationPermissionHelper
+import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppNavigation() {
+@AndroidEntryPoint
+fun AppNavigation(
+    settingsRepository: SettingsRepository,
+    notificationPermissionHelper: NotificationPermissionHelper
+) {
     val navController = rememberNavController()
     val viewModel: ReminderViewModel = hiltViewModel()
+
+    // Check onboarding and permission states
+    val onboardingCompleted by settingsRepository.isOnboardingCompleted()
+        .collectAsState(initial = false)
+    val notificationListenerPromptShown by settingsRepository.isNotificationListenerPromptShown()
+        .collectAsState(initial = false)
+    val isNotificationListenerEnabled = notificationPermissionHelper.isNotificationListenerEnabled()
+
+    // Determine start destination based on state
+    val startDestination = when {
+        !onboardingCompleted -> Screen.Onboarding.route
+        !notificationListenerPromptShown && !isNotificationListenerEnabled -> Screen.NotificationPermission.route
+        else -> Screen.Home.route
+    }
 
     val items = listOf(
         NavigationItem(
@@ -68,21 +95,28 @@ fun AppNavigation() {
         topBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
-            
+
+            // Hide top bar on onboarding
+            if (currentRoute == Screen.Onboarding.route) return@Scaffold
+
             val title = when (currentRoute) {
                 Screen.Home.route -> stringResource(R.string.app_name)
                 Screen.Stats.route -> stringResource(R.string.nav_stats)
                 Screen.Settings.route -> stringResource(R.string.nav_settings)
                 else -> ""
             }
-            
+
             TopAppBar(
                 title = {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        style = if (currentRoute == Screen.Home.route) {
+                            // App name gets the strongest treatment
+                            MaterialTheme.typography.headlineLarge
+                        } else {
+                            // Other screens use clean headline
+                            MaterialTheme.typography.headlineMedium
+                        }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -92,15 +126,20 @@ fun AppNavigation() {
             )
         },
         bottomBar = {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+
+            // Hide bottom bar on onboarding
+            if (currentRoute == Screen.Onboarding.route) return@Scaffold
+
             NavigationBar(
                 tonalElevation = 3.dp
             ) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
 
                 items.forEach { item ->
-                    val selected = currentDestination?.hierarchy?.any { 
-                        it.route == item.route 
+                    val selected = currentDestination?.hierarchy?.any {
+                        it.route == item.route
                     } == true
 
                     NavigationBarItem(
@@ -128,17 +167,71 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = startDestination,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            enterTransition = {
+                fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(300))
+            }
         ) {
+            composable(Screen.Onboarding.route) {
+                OnboardingScreen(
+                    onComplete = {
+                        settingsRepository.setOnboardingCompleted(true)
+                        // Navigate to permission screen instead of home
+                        navController.navigate(Screen.NotificationPermission.route) {
+                            popUpTo(Screen.Onboarding.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onSkip = {
+                        settingsRepository.setOnboardingCompleted(true)
+                        // Navigate to permission screen instead of home
+                        navController.navigate(Screen.NotificationPermission.route) {
+                            popUpTo(Screen.Onboarding.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.NotificationPermission.route) {
+                NotificationPermissionScreen(
+                    notificationPermissionHelper = notificationPermissionHelper,
+                    onPermissionGranted = {
+                        settingsRepository.setNotificationListenerPromptShown(true)
+                        settingsRepository.setNotificationListenerEnabled(true)
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.NotificationPermission.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onSkip = {
+                        settingsRepository.setNotificationListenerPromptShown(true)
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.NotificationPermission.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+
             composable(Screen.Home.route) {
                 HomeScreen(viewModel = viewModel)
             }
+
             composable(Screen.Stats.route) {
                 StatsScreen(viewModel = viewModel)
             }
+
             composable(Screen.Settings.route) {
                 SettingsScreen()
             }

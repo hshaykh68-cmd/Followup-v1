@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -44,9 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.followup.R
 import com.followup.presentation.reminder.ReminderViewModel
-import com.followup.presentation.theme.doneGreen
-import com.followup.presentation.theme.pendingBlue
-import com.followup.presentation.theme.streakGold
+import com.followup.presentation.theme.ComponentTokens
+import com.followup.presentation.theme.CornerRadius
+import com.followup.presentation.theme.Screen
+import com.followup.presentation.theme.Spacing
 
 @Composable
 fun StatsScreen(
@@ -65,31 +67,33 @@ fun StatsScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(Screen.paddingHorizontal),
+        // REDUCED: Tighter spacing between cards for cohesive feel
+        verticalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
-        StreakCard(streakDays = 0)
+        // HERO STATS: Big numbers, clean layout, minimal colors
+        ModernStreakCard(streakDays = 0)
         
-        StatsOverview(
+        ModernStatsOverview(
             pending = pendingCount,
             completed = completedCount,
             total = totalCount
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
+        // COMPACT SECTION HEADER: Minimal space, tight to content
         Text(
             text = "Overview",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 8.dp)
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            // TIGHT: Small left indent, minimal bottom spacing
+            modifier = Modifier.padding(start = Spacing.xs, bottom = Spacing.xxs, top = Spacing.xs)
         )
 
         StatDetailCard(
             icon = Icons.Default.PendingActions,
             title = "Pending",
             value = pendingCount,
-            color = pendingBlue,
+            color = MaterialTheme.colorScheme.primary,
             description = "Reminders waiting for you"
         )
 
@@ -97,7 +101,7 @@ fun StatsScreen(
             icon = Icons.Default.CheckCircle,
             title = "Completed",
             value = completedCount,
-            color = doneGreen,
+            color = MaterialTheme.colorScheme.tertiary,
             description = "Reminders marked as done"
         )
 
@@ -105,14 +109,18 @@ fun StatsScreen(
             icon = Icons.Default.Schedule,
             title = "Total",
             value = totalCount,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.secondary,
             description = "All reminders created"
         )
     }
 }
 
+/**
+ * MODERN STREAK CARD
+ * Clean hero card with strong number emphasis and subtle accent
+ */
 @Composable
-private fun StreakCard(
+private fun ModernStreakCard(
     streakDays: Int,
     modifier: Modifier = Modifier
 ) {
@@ -128,128 +136,169 @@ private fun StreakCard(
     }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(CornerRadius.xxl),
+                ambientColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
+            ),
+        shape = RoundedCornerShape(CornerRadius.xxl),
         colors = CardDefaults.cardColors(
-            containerColor = streakGold.copy(alpha = 0.15f)
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(Spacing.ml),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // PREMIUM ICON CONTAINER: Large, tonal background
             Box(
                 modifier = Modifier
                     .size(64.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(streakGold.copy(alpha = 0.2f)),
+                    .clip(RoundedCornerShape(CornerRadius.xl))
+                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.LocalFireDepartment,
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = streakGold
+                    tint = MaterialTheme.colorScheme.tertiary
                 )
             }
 
-            Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.width(Spacing.lg))
 
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
+                // HERO NUMBER: Big, bold streak count
                 Text(
                     text = animatedStreak.toString(),
-                    style = MaterialTheme.typography.displayMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = streakGold
-                    )
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = stringResource(R.string.stats_streak_title),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    text = "day streak",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // MODERN PROGRESS RING
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .padding(Spacing.xs),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    progress = { (animatedStreak % 7) / 7f },
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    strokeWidth = 5.dp,
+                    trackColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
                 )
                 Text(
-                    text = stringResource(R.string.stats_streak_subtitle),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    text = "${(animatedStreak % 7)}",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
         }
     }
 }
 
+/**
+ * MODERN STATS OVERVIEW
+ * Clean horizontal layout with consistent neutral styling
+ */
 @Composable
-private fun StatsOverview(
+private fun ModernStatsOverview(
     pending: Int,
     completed: Int,
     total: Int,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 1.dp,
+                shape = RoundedCornerShape(CornerRadius.xxl)
+            ),
+        shape = RoundedCornerShape(CornerRadius.xxl),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 20.dp),
+                .padding(vertical = Spacing.lg, horizontal = Spacing.md),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem(
+            ModernStatItem(
                 value = pending,
-                label = stringResource(R.string.stats_pending_title),
-                color = pendingBlue
+                label = "Pending",
+                accentColor = MaterialTheme.colorScheme.primary
             )
-            StatItem(
+            ModernStatItem(
                 value = completed,
-                label = stringResource(R.string.stats_done_title),
-                color = doneGreen
+                label = "Done",
+                accentColor = MaterialTheme.colorScheme.tertiary
             )
-            StatItem(
+            ModernStatItem(
                 value = total,
-                label = stringResource(R.string.stats_total_title),
-                color = MaterialTheme.colorScheme.primary
+                label = "Total",
+                accentColor = MaterialTheme.colorScheme.secondary
             )
         }
     }
 }
 
+/**
+ * MODERN STAT ITEM
+ * Clean vertical stat with accent dot and strong number
+ */
 @Composable
-private fun StatItem(
+private fun ModernStatItem(
     value: Int,
     label: String,
-    color: Color
+    accentColor: Color
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // ACCENT DOT: Small, subtle color indicator
         Box(
             modifier = Modifier
-                .size(8.dp)
+                .size(6.dp)
                 .clip(RoundedCornerShape(50))
-                .background(color)
+                .background(accentColor)
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Spacing.sm))
+        // BIG NUMBER: Featured value with bold weight
         Text(
             text = value.toString(),
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.SemiBold
-            )
+            ),
+            color = MaterialTheme.colorScheme.onSurface
         )
+        Spacer(modifier = Modifier.height(Spacing.xxs))
+        // LABEL: Clean secondary text
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -265,53 +314,56 @@ private fun StatDetailCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(CornerRadius.xl),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
+        // TIGHT PADDING: 16dp all around for stat detail cards
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(Spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(color.copy(alpha = 0.15f)),
+                    .clip(RoundedCornerShape(CornerRadius.md))
+                    .background(color.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(ComponentTokens.Icon.sizeLg),
                     tint = color
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Spacing.md))
 
             Column(modifier = Modifier.weight(1f)) {
+                // CARD TITLE: Item name
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Medium
                     )
                 )
+                // DESCRIPTION: Secondary info
                 Text(
                     text = description,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
+            // VALUE: Right-aligned number with emphasis
             Text(
                 text = value.toString(),
-                style = MaterialTheme.typography.headlineSmall.copy(
+                style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                     color = color
                 )

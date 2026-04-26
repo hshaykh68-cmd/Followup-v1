@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+    
+    <!-- Premium minimal logo: stylized "F" that suggests forward motion/follow-up -->
+    <group
+        android:pivotX="144"
+        android:pivotY="144"
+        android:scaleX="0.6"
+        android:scaleY="0.6">
+        
+        <!-- Main stroke - vertical with forward angle -->
+        <path
+            android:fillColor="@color/splash_content_tint"
+            android:pathData="M104,72 
+                L104,216 
+                L128,216 
+                L128,148 
+                L192,148 
+                L192,128 
+                L128,128 
+                L128,92 
+                L200,92 
+                L200,72 
+                Z" />
+        
+        <!-- Accent dot - subtle forward indicator -->
+        <path
+            android:fillColor="@color/splash_content_tint"
+            android:pathData="M176,168 
+                A12,12 0 1,1 176,192 
+                A12,12 0 1,1 176,168 
+                Z" />
+    </group>
+</vector>

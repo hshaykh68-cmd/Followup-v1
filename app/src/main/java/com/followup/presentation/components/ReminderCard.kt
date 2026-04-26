@@ -27,109 +27,130 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.followup.R
 import com.followup.domain.model.Reminder
-import com.followup.presentation.theme.doneGreen
-import com.followup.presentation.theme.overdueRed
-import com.followup.presentation.theme.pendingBlue
+import com.followup.presentation.theme.ComponentTokens
+import com.followup.presentation.theme.Content
+import com.followup.presentation.theme.CornerRadius
+import com.followup.presentation.theme.Elevation
+import com.followup.presentation.theme.Screen
+import com.followup.presentation.theme.Spacing
+import com.followup.presentation.theme.statusDone
+import com.followup.presentation.theme.statusOverdue
+import com.followup.presentation.theme.statusPending
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+/**
+ * PREMIUM REMINDER CARD - 2026 Design
+ * Enhanced visual depth, refined states, modern hierarchy
+ */
 @Composable
 fun ReminderCard(
     reminder: Reminder,
     modifier: Modifier = Modifier
 ) {
-    val (containerColor, statusColor, icon) = when {
+    val (containerColor, statusColor, tonalElevation) = when {
         reminder.isDone -> Triple(
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-            doneGreen,
-            Icons.Default.CheckCircle
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            statusDone,
+            Elevation.none
         )
         reminder.isOverdue -> Triple(
-            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
-            overdueRed,
-            Icons.Default.Warning
+            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f),
+            statusOverdue,
+            Elevation.low
         )
         else -> Triple(
             MaterialTheme.colorScheme.surface,
-            pendingBlue,
-            Icons.Default.AccessTime
+            statusPending,
+            Elevation.subtle
         )
     }
 
+    // PREMIUM CARD: Subtle shadow + tonal surface for depth
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(24.dp),
+            .padding(horizontal = Screen.paddingHorizontal, vertical = Spacing.xxs)
+            .shadow(
+                elevation = if (reminder.isDone) 0.dp else 2.dp,
+                shape = RoundedCornerShape(CornerRadius.xxl),
+                ambientColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+            ),
+        shape = RoundedCornerShape(CornerRadius.xxl),
         colors = CardDefaults.cardColors(
             containerColor = containerColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (reminder.isDone) 0.dp else 1.dp,
-            pressedElevation = if (reminder.isDone) 0.dp else 4.dp
+            defaultElevation = tonalElevation,
+            pressedElevation = if (reminder.isDone) Elevation.none else Elevation.low
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
+                // BALANCED PADDING: 20dp horizontal, 16dp vertical
+                .padding(horizontal = Spacing.ml, vertical = Spacing.md)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
-                StatusIndicator(
+                // MODERN STATUS: Larger, more prominent indicator
+                ModernStatusIndicator(
                     isDone = reminder.isDone,
                     isOverdue = reminder.isOverdue,
                     color = statusColor
                 )
 
-                Spacer(modifier = Modifier.width(14.dp))
+                // TIGHT: Small gap between indicator and content
+                Spacer(modifier = Modifier.width(Spacing.sm))
 
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
+                    // PRIMARY: Name with strong visual weight
                     Text(
                         text = reminder.name,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = if (reminder.isDone) FontWeight.Medium else FontWeight.SemiBold
-                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if (reminder.isDone) FontWeight.Medium else FontWeight.SemiBold,
                         color = if (reminder.isDone) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = Content.alphaDisabled)
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         },
-                        maxLines = 1,
+                        maxLines = Content.titleMaxLines,
                         overflow = TextOverflow.Ellipsis
                     )
 
+                    // SECONDARY: Message - clean subordinate styling
                     if (!reminder.message.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(Spacing.xxs))
                         Text(
                             text = reminder.message,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                alpha = if (reminder.isDone) 0.45f else 0.75f
-                            ),
-                            maxLines = 2,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (reminder.isDone) {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = Content.alphaDisabled)
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            maxLines = Content.bodyMaxLines,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    TimeChip(
+                    // TERTIARY: Modern time chip
+                    Spacer(modifier = Modifier.height(Spacing.sm))
+                    ModernTimeChip(
                         timestamp = reminder.reminderTime,
                         isDone = reminder.isDone,
                         isOverdue = reminder.isOverdue
@@ -140,79 +161,91 @@ fun ReminderCard(
     }
 }
 
+/**
+ * MODERN STATUS INDICATOR
+ * Larger, cleaner visual state representation
+ */
 @Composable
-private fun StatusIndicator(
+private fun ModernStatusIndicator(
     isDone: Boolean,
     isOverdue: Boolean,
     color: Color,
     modifier: Modifier = Modifier
 ) {
+    val backgroundColor = when {
+        isDone -> MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        isOverdue -> MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+        else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+    }
+
     Box(
         modifier = modifier
-            .size(10.dp)
+            .size(12.dp)
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .padding(3.dp)
             .clip(CircleShape)
             .background(
                 when {
-                    isDone -> color.copy(alpha = 0.3f)
-                    isOverdue -> color.copy(alpha = 0.25f)
-                    else -> color.copy(alpha = 0.2f)
+                    isDone -> MaterialTheme.colorScheme.outline
+                    isOverdue -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.primary
                 }
             )
-            .padding(2.dp)
-            .clip(CircleShape)
-            .background(color)
     )
 }
 
+/**
+ * MODERN TIME CHIP
+ * Refined pill design with subtle background and clear iconography
+ */
 @Composable
-private fun TimeChip(
+private fun ModernTimeChip(
     timestamp: Long,
     isDone: Boolean,
     isOverdue: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val (text, color, containerAlpha) = when {
-        isDone -> Triple(
+    val (text, icon, backgroundColor, contentColor) = when {
+        isDone -> Quadruple(
             formatTimeCompleted(timestamp),
-            MaterialTheme.colorScheme.onSurfaceVariant,
-            0.12f
+            Icons.Default.CheckCircle,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+            MaterialTheme.colorScheme.outline
         )
-        isOverdue -> Triple(
+        isOverdue -> Quadruple(
             stringResource(R.string.time_overdue),
-            overdueRed,
-            0.15f
+            Icons.Default.Warning,
+            MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
+            MaterialTheme.colorScheme.error
         )
-        else -> Triple(
+        else -> Quadruple(
             formatTimeRemainingSmart(timestamp),
-            pendingBlue,
-            0.15f
+            Icons.Default.AccessTime,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+            MaterialTheme.colorScheme.primary
         )
     }
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(color.copy(alpha = containerAlpha))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .clip(RoundedCornerShape(CornerRadius.xl))
+            .background(backgroundColor)
+            .padding(horizontal = Spacing.sm, vertical = Spacing.xxs),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
         Icon(
-            imageVector = when {
-                isDone -> Icons.Default.CheckCircle
-                isOverdue -> Icons.Default.Warning
-                else -> Icons.Default.AccessTime
-            },
+            imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(14.dp),
-            tint = color
+            tint = contentColor
         )
         Text(
             text = text,
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = color
+            style = MaterialTheme.typography.labelSmall,
+            color = contentColor,
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -239,3 +272,10 @@ private fun formatTimeCompleted(timestamp: Long): String {
     val sdf = SimpleDateFormat("MMM d • h:mm a", Locale.getDefault())
     return "Completed ${sdf.format(Date(timestamp))}"
 }
+
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,6 +63,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.followup.R
 import com.followup.presentation.components.TimePreset
+import com.followup.presentation.components.animations.AnimatedButton
+import com.followup.presentation.theme.ComponentTokens
+import com.followup.presentation.theme.CornerRadius
+import com.followup.presentation.theme.Spacing
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -106,21 +109,21 @@ fun AddReminderBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        shape = RoundedCornerShape(topStart = ComponentTokens.BottomSheet.radius, topEnd = ComponentTokens.BottomSheet.radius),
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
         dragHandle = {
             Column(
-                modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+                modifier = Modifier.padding(top = Spacing.sm, bottom = Spacing.xs),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .width(40.dp)
-                        .height(4.dp)
+                        .width(ComponentTokens.BottomSheet.dragHandleWidth)
+                        .height(ComponentTokens.BottomSheet.dragHandleHeight)
                         .background(
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                            RoundedCornerShape(2.dp)
+                            RoundedCornerShape(ComponentTokens.BottomSheet.dragHandleHeight / 2)
                         )
                 )
             }
@@ -129,8 +132,8 @@ fun AddReminderBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 32.dp)
+                .padding(horizontal = Spacing.lg)
+                .padding(bottom = Spacing.xl)
                 .heightIn(max = 580.dp)
                 .verticalScroll(rememberScrollState())
                 .clickable(
@@ -140,22 +143,19 @@ fun AddReminderBottomSheet(
                     keyboardController?.hide()
                 }
         ) {
-            // Header
+            // HEADER GROUP: Title + subtitle compact
             Text(
                 text = stringResource(R.string.add_reminder_title),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = (-0.5).sp
-                ),
-                modifier = Modifier.padding(bottom = 4.dp)
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = Spacing.xxs)
             )
             
             Text(
                 text = "Quickly capture who you need to reply to",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.padding(bottom = 20.dp)
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                // REDUCED: Tighter grouping of header elements
+                modifier = Modifier.padding(bottom = Spacing.lg)
             )
 
             // Name field - Auto-focused for <3 second entry
@@ -173,7 +173,7 @@ fun AddReminderBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(CornerRadius.lg),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
@@ -188,7 +188,8 @@ fun AddReminderBottomSheet(
                 )
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            // COMPACT: Tight spacing between input fields (related elements)
+            Spacer(modifier = Modifier.height(Spacing.xs))
 
             // Message field - Optional, collapsed by default hint
             OutlinedTextField(
@@ -198,7 +199,7 @@ fun AddReminderBottomSheet(
                 placeholder = { Text("Brief note to remember") },
                 maxLines = 2,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(CornerRadius.lg),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
@@ -213,22 +214,21 @@ fun AddReminderBottomSheet(
                 )
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // SECTION BREAK: Space before time selection (different grouping)
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
-            // Time selection - Quick chips for <3 second flow
+            // SECTION HEADER: Clear separation for time selection
             Text(
                 text = "Remind me",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.padding(bottom = 10.dp)
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = Spacing.sm)
             )
 
-            // FlowRow for adaptive chip layout
+            // PREMIUM CHIPS: Rounded, clear selected state, responsive
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(Spacing.sm),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TimePreset.entries.forEach { preset ->
@@ -249,7 +249,9 @@ fun AddReminderBottomSheet(
                                     TimePreset.TONIGHT -> "Tonight"
                                     TimePreset.TOMORROW -> "Tomorrow"
                                 },
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+                                )
                             )
                         },
                         leadingIcon = if (isSelected) {
@@ -257,16 +259,26 @@ fun AddReminderBottomSheet(
                                 Icon(
                                     imageVector = preset.icon,
                                     contentDescription = null,
-                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         } else null,
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                            },
+                            borderWidth = if (isSelected) 0.dp else 1.dp
+                        ),
+                        shape = RoundedCornerShape(CornerRadius.xl)
                     )
                 }
 
@@ -284,7 +296,9 @@ fun AddReminderBottomSheet(
                             text = customTime?.let { 
                                 SimpleDateFormat("EEE, h:mm a", Locale.getDefault()).format(Date(it))
                             } ?: "Custom",
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = if (isCustomSelected) FontWeight.SemiBold else FontWeight.Medium
+                            )
                         )
                     },
                     leadingIcon = if (isCustomSelected) {
@@ -292,48 +306,57 @@ fun AddReminderBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.Schedule,
                                 contentDescription = null,
-                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     } else null,
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    border = FilterChipDefaults.filterChipBorder(
+                        borderColor = if (isCustomSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        },
+                        borderWidth = if (isCustomSelected) 0.dp else 1.dp
+                    ),
+                    shape = RoundedCornerShape(CornerRadius.xl)
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            // ACTION GROUP: Space before CTA
+            Spacer(modifier = Modifier.height(Spacing.xl))
 
-            // Primary action button
-            Button(
+            // PREMIUM PRIMARY CTA: Animated button with press feedback
+            AnimatedButton(
                 onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     keyboardController?.hide()
                     onSave(name.trim(), message.trim().takeIf { it.isNotBlank() }, effectiveTime)
                 },
                 enabled = canSave,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                )
-            ) {
-                Text(
-                    text = "Create Reminder",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-            }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                hapticFeedback = HapticFeedbackType.LongPress,
+                content = {
+                    Text(
+                        text = "Create Reminder",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.5.sp
+                        )
+                    )
+                }
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Cancel button - minimal, centered
+            Spacer(modifier = Modifier.height(Spacing.xs))
 
-            // Cancel button - subtle
             TextButton(
                 onClick = {
                     keyboardController?.hide()
@@ -343,9 +366,8 @@ fun AddReminderBottomSheet(
             ) {
                 Text(
                     text = "Cancel",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
             }
         }

@@ -54,10 +54,12 @@
     <string name="stats_total_title">Total</string>
     
     <!-- Settings -->
+    <string name="settings_general">General</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_reminders">Reminders</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_dark_mode">Dark Mode</string>
     <string name="settings_dark_mode_subtitle">Use dark theme</string>
-    <string name="settings_notifications">Notifications</string>
     <string name="settings_notification_style">Notification Style</string>
     <string name="settings_style_soft">Soft</string>
     <string name="settings_style_aggressive">Aggressive</string>

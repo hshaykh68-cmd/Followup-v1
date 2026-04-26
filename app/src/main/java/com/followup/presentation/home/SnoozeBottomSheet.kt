@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +32,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.followup.presentation.components.animations.AnimatedButton
+import com.followup.presentation.theme.ComponentTokens
+import com.followup.presentation.theme.CornerRadius
+import com.followup.presentation.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,21 +53,21 @@ fun SnoozeBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        shape = RoundedCornerShape(topStart = ComponentTokens.BottomSheet.radius, topEnd = ComponentTokens.BottomSheet.radius),
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
         dragHandle = {
             Column(
-                modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+                modifier = Modifier.padding(top = Spacing.sm, bottom = Spacing.xs),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .width(40.dp)
-                        .height(4.dp)
+                        .width(ComponentTokens.BottomSheet.dragHandleWidth)
+                        .height(ComponentTokens.BottomSheet.dragHandleHeight)
                         .background(
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                            RoundedCornerShape(2.dp)
+                            RoundedCornerShape(ComponentTokens.BottomSheet.dragHandleHeight / 2)
                         )
                 )
             }
@@ -73,25 +76,22 @@ fun SnoozeBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 32.dp)
+                .padding(horizontal = Spacing.lg)
+                .padding(bottom = Spacing.xl)
         ) {
-            // Header
+            // HEADER GROUP: Consistent with AddReminder sheet
             Text(
                 text = "Snooze Reminder",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = (-0.5).sp
-                ),
-                modifier = Modifier.padding(bottom = 4.dp)
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = Spacing.xxs)
             )
             
             Text(
                 text = "Remind me again in...",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.padding(bottom = 20.dp)
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                // CONSISTENT: Same spacing as AddReminder subtitle
+                modifier = Modifier.padding(bottom = Spacing.lg)
             )
 
             val options = listOf(
@@ -100,11 +100,13 @@ fun SnoozeBottomSheet(
                 60 * 60 * 1000L to Pair("1", "hour")
             )
 
+            // OPTIONS: Grouped with tight spacing
             Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 28.dp)
+                    // SPACE FOR CTA: Same as AddReminder before button
+                    .padding(bottom = Spacing.xl)
             ) {
                 options.forEach { (duration, labelPair) ->
                     val (value, unit) = labelPair
@@ -125,56 +127,51 @@ fun SnoozeBottomSheet(
                                     MaterialTheme.colorScheme.primaryContainer 
                                 else 
                                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(16.dp)
+                                shape = RoundedCornerShape(CornerRadius.lg)
                             )
-                            .padding(vertical = 16.dp, horizontal = 8.dp),
+                            .padding(vertical = Spacing.md, horizontal = Spacing.xs),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = value,
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) 
-                                    MaterialTheme.colorScheme.onPrimaryContainer 
-                                else 
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = if (isSelected) 
+                                MaterialTheme.colorScheme.onPrimaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = unit,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = if (isSelected) 
-                                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) 
-                                else 
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                            )
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (isSelected) 
+                                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) 
+                            else 
+                                MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            Button(
+            AnimatedButton(
                 onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onSnooze(selectedDuration)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(
-                    text = "Snooze",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-            }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                hapticFeedback = HapticFeedbackType.LongPress,
+                content = {
+                    Text(
+                        text = "Snooze",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // TIGHT: Cancel close to primary action
+            Spacer(modifier = Modifier.height(Spacing.xs))
 
             TextButton(
                 onClick = onDismiss,
@@ -182,9 +179,8 @@ fun SnoozeBottomSheet(
             ) {
                 Text(
                     text = "Cancel",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

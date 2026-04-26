@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen Background Colors - Night -->
+    <!-- Dark theme: deep, refined dark surface -->
+    <color name="splash_background_night">#FF09090B</color>
+    
+    <!-- Splash content tint - adaptive for light/dark -->
+    <color name="splash_content_tint_night">#FFFAFAFA</color>
+</resources>

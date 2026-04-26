@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions for notifications and reminders -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Permission required for NotificationListenerService -->
+    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
+
     <application
         android:name=".FollowUpApplication"
         android:allowBackup="true"
@@ -17,12 +27,30 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.FollowUp">
+            android:theme="@style/Theme.FollowUp.Starting"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Notification Listener Service - captures message notifications -->
+        <service
+            android:name=".service.notification.FollowUpNotificationListener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true"
+            android:foregroundServiceType="dataSync">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+        
+        <!-- Broadcast Receiver - handles "Remind later" action clicks -->
+        <receiver
+            android:name=".service.notification.NotificationActionReceiver"
+            android:enabled="true"
+            android:exported="false" />
         
     </application>
 

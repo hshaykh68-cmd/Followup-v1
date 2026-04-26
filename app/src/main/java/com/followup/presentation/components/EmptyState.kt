@@ -38,61 +38,71 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.followup.R
 import com.followup.presentation.reminder.ReminderFilter
-import com.followup.presentation.theme.doneGreen
-import com.followup.presentation.theme.pendingBlue
+import com.followup.presentation.theme.CornerRadius
+import com.followup.presentation.theme.Spacing
 
+/**
+ * PREMIUM EMPTY STATE - 2026 Design
+ * Refined visuals, stronger text hierarchy, contextual personality
+ */
 @Composable
 fun EmptyState(
     filter: ReminderFilter,
     modifier: Modifier = Modifier
 ) {
-    val (icon, title, subtitle, iconColor) = when (filter) {
-        ReminderFilter.PENDING -> Quadruple(
-            Icons.Outlined.Inbox,
-            "All caught up!",
-            "You have no pending replies. Tap + when you need to follow up.",
-            pendingBlue
+    val state = when (filter) {
+        ReminderFilter.PENDING -> EmptyStateContent(
+            icon = Icons.Outlined.Inbox,
+            title = "All caught up!",
+            subtitle = "No pending replies. Tap New below when you need to follow up.",
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+            iconColor = MaterialTheme.colorScheme.primary
         )
-        ReminderFilter.TODAY -> Quadruple(
-            Icons.Outlined.Schedule,
-            "Nothing for today",
-            "Your day is clear. Enjoy the peace of mind!",
-            pendingBlue
+        ReminderFilter.TODAY -> EmptyStateContent(
+            icon = Icons.Outlined.Schedule,
+            title = "Today is clear",
+            subtitle = "No reminders scheduled. Your day is yours to enjoy!",
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+            iconColor = MaterialTheme.colorScheme.secondary
         )
-        ReminderFilter.OVERDUE -> Quadruple(
-            Icons.Outlined.SentimentSatisfied,
-            "No overdue replies",
-            "You're staying on top of everything. Great job!",
-            doneGreen
+        ReminderFilter.OVERDUE -> EmptyStateContent(
+            icon = Icons.Outlined.CheckCircle,
+            title = "Excellent work!",
+            subtitle = "No overdue replies. You're staying on top of everything.",
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+            iconColor = MaterialTheme.colorScheme.tertiary
         )
-        ReminderFilter.DONE -> Quadruple(
-            Icons.Outlined.CheckCircle,
-            "No completed yet",
-            "Reminders you mark as done will appear here.",
-            MaterialTheme.colorScheme.onSurfaceVariant
+        ReminderFilter.DONE -> EmptyStateContent(
+            icon = Icons.Outlined.BeachAccess,
+            title = "Fresh start",
+            subtitle = "Completed reminders will appear here. Keep going!",
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            iconColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        ReminderFilter.ALL -> Quadruple(
-            Icons.Outlined.Inbox,
-            "Start your inbox",
-            "Tap + below to add your first reminder to reply later.",
-            pendingBlue
+        ReminderFilter.ALL -> EmptyStateContent(
+            icon = Icons.Outlined.AddCircle,
+            title = "Welcome to FollowUp",
+            subtitle = "Your personal inbox for replies. Tap New to get started.",
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+            iconColor = MaterialTheme.colorScheme.primary
         )
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 40.dp),
+            .padding(horizontal = Spacing.xl)
+            .padding(top = Spacing.xxl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
-        // Animated icon container
+        // PREMIUM ICON CONTAINER: Larger, with soft shadow and animation
         val infiniteTransition = rememberInfiniteTransition(label = "float")
         val float by infiniteTransition.animateFloat(
             initialValue = 0f,
-            targetValue = 8f,
+            targetValue = 6f,
             animationSpec = infiniteRepeatable(
-                animation = tween(2000),
+                animation = tween(2500, easing = androidx.compose.animation.core.EaseInOutSine),
                 repeatMode = RepeatMode.Reverse
             ),
             label = "float"
@@ -101,48 +111,51 @@ fun EmptyState(
         Box(
             modifier = Modifier
                 .offset(y = float.dp)
-                .size(80.dp)
+                .size(96.dp)
                 .background(
-                    color = iconColor.copy(alpha = 0.12f),
-                    shape = RoundedCornerShape(24.dp)
-                ),
+                    color = state.containerColor,
+                    shape = RoundedCornerShape(CornerRadius.xxl)
+                )
+                .padding(Spacing.md),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = state.icon,
                 contentDescription = null,
-                modifier = Modifier.size(36.dp),
-                tint = iconColor.copy(alpha = 0.8f)
+                modifier = Modifier.size(44.dp),
+                tint = state.iconColor
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        // STRONG HIERARCHY: Prominent title, clear subtitle
+        Spacer(modifier = Modifier.height(Spacing.xl))
 
         Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge.copy(
+            text = state.title,
+            style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.SemiBold
             ),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(Spacing.sm))
 
         Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                lineHeight = MaterialTheme.typography.titleSmall.lineHeight
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-            textAlign = TextAlign.Center
+            text = state.subtitle,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = Spacing.lg)
         )
     }
 }
 
-private data class Quadruple<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
+private data class EmptyStateContent(
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String,
+    val containerColor: androidx.compose.ui.graphics.Color,
+    val iconColor: androidx.compose.ui.graphics.Color
 )
+

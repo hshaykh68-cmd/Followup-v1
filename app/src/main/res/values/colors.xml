@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen Background Colors -->
+    <!-- Light theme: warm off-white, subtle premium feel -->
+    <color name="splash_background">#FFFAFAFA</color>
+    
+    <!-- Splash content tint - adaptive for light/dark -->
+    <color name="splash_content_tint">#FF18181B</color>
+</resources>

@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main App Theme -->
     <style name="Theme.FollowUp" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Splash Screen Theme - Main entry point theme -->
+    <style name="Theme.FollowUp.Starting" parent="Theme.SplashScreen">
+        <!-- Background color for splash window -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        
+        <!-- Splash icon - centered, adaptive -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_background</item>
+        
+        <!-- Animation duration (max 1000ms for Android 12+) -->
+        <item name="windowSplashScreenAnimationDuration">600</item>
+        
+        <!-- Branded launch image (optional, for after animation) -->
+        <!-- <item name="android:windowSplashScreenBrandingImage">@drawable/splash_brand</item> -->
+        
+        <!-- Post splash theme - applied after splash exits -->
+        <item name="postSplashScreenTheme">@style/Theme.FollowUp</item>
+        
+        <!-- Status bar handling -->
+        <item name="android:statusBarColor">@color/splash_background</item>
+        <item name="android:navigationBarColor">@color/splash_background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>
