@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitPointerEventScope
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -99,28 +100,31 @@ fun Modifier.pressableScale(
     val scale = remember { Animatable(1f) }
 
     pointerInput(scalePressed) {
-        while (true) {
-            awaitFirstDown()
-            
-            // Immediate press feedback
-            launch {
+        awaitPointerEventScope {
+            while (true) {
+                val down = awaitFirstDown()
+
+                // Immediate press feedback
                 scale.snapTo(scalePressed)
                 onPress?.invoke()
-            }
-            
-            // Wait for release
-            waitForUpOrCancellation()
-            
-            // Release animation
-            launch {
-                scale.animateTo(
-                    targetValue = 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium
+
+                // Wait for release
+                val up = waitForUpOrCancellation()
+
+                // Release animation
+                if (up != null) {
+                    scale.animateTo(
+                        targetValue = 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        )
                     )
-                )
-                onRelease?.invoke()
+                    onRelease?.invoke()
+                } else {
+                    // Cancelled - reset immediately
+                    scale.snapTo(1f)
+                }
             }
         }
     }.graphicsLayer {
