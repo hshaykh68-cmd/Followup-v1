@@ -1,5 +1,5 @@
 Clean and build debug APK
-1m 58s
+2m 14s
 
 
 
@@ -64,11 +64,10 @@ Installing Android SDK Build-Tools 34 in /usr/local/share/android-sdk/build-tool
 > Task :app:kaptDebugKotlin
 
 > Task :app:compileDebugKotlin FAILED
-e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:25:42 Unresolved reference: awaitPointerEventScope
-e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:108:17 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
-public fun CoroutineScope.launch(context: CoroutineContext = ..., start: CoroutineStart = ..., block: suspend CoroutineScope.() -> Unit): Job defined in kotlinx.coroutines
-e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:117:17 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
-public fun CoroutineScope.launch(context: CoroutineContext = ..., start: CoroutineStart = ..., block: suspend CoroutineScope.() -> Unit): Job defined in kotlinx.coroutines
+e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:103:24 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public suspend fun AwaitPointerEventScope.awaitFirstDown(requireUnconsumed: Boolean = ..., pass: PointerEventPass = ...): PointerInputChange defined in androidx.compose.foundation.gestures
+e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:112:22 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public suspend fun AwaitPointerEventScope.waitForUpOrCancellation(pass: PointerEventPass = ...): PointerInputChange? defined in androidx.compose.foundation.gestures
 
 FAILURE: Build failed with an exception.
 
@@ -276,7 +275,7 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	... 2 more
 
 
-BUILD FAILED in 1m 57s
+BUILD FAILED in 2m 13s
 29 actionable tasks: 28 executed, 1 up-to-date
 
 
@@ -342,11 +341,10 @@ Installing Android SDK Build-Tools 34 in /usr/local/share/android-sdk/build-tool
 > Task :app:kaptDebugKotlin
 
 > Task :app:compileDebugKotlin FAILED
-e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:25:42 Unresolved reference: awaitPointerEventScope
-e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:108:17 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
-public fun CoroutineScope.launch(context: CoroutineContext = ..., start: CoroutineStart = ..., block: suspend CoroutineScope.() -> Unit): Job defined in kotlinx.coroutines
-e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:117:17 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
-public fun CoroutineScope.launch(context: CoroutineContext = ..., start: CoroutineStart = ..., block: suspend CoroutineScope.() -> Unit): Job defined in kotlinx.coroutines
+e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:103:24 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public suspend fun AwaitPointerEventScope.awaitFirstDown(requireUnconsumed: Boolean = ..., pass: PointerEventPass = ...): PointerInputChange defined in androidx.compose.foundation.gestures
+e: file:///Users/builder/clone/app/src/main/java/com/followup/presentation/components/animations/AnimatedPressable.kt:112:22 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+public suspend fun AwaitPointerEventScope.waitForUpOrCancellation(pass: PointerEventPass = ...): PointerInputChange? defined in androidx.compose.foundation.gestures
 
 FAILURE: Build failed with an exception.
 
@@ -554,7 +552,7 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	... 2 more
 
 
-BUILD FAILED in 1m 57s
+BUILD FAILED in 2m 13s
 29 actionable tasks: 28 executed, 1 up-to-date
 
 
