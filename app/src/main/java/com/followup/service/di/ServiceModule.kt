@@ -1,10 +1,12 @@
 package com.followup.service.di
 
+import android.content.Context
 import com.followup.service.notification.NotificationActionHelper
 import com.followup.service.notification.NotificationPermissionHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -18,7 +20,7 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideNotificationPermissionHelper(
-        context: android.content.Context
+        @ApplicationContext context: Context
     ): NotificationPermissionHelper {
         return NotificationPermissionHelper(context)
     }
@@ -26,7 +28,7 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideNotificationActionHelper(
-        context: android.content.Context
+        @ApplicationContext context: Context
     ): NotificationActionHelper {
         return NotificationActionHelper(context)
     }
