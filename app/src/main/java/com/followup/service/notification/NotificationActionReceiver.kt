@@ -141,8 +141,4 @@ class NotificationActionReceiver : BroadcastReceiver() {
             // Toast can fail if context is no longer valid
         }
     }
-
-    override fun onDestroy() {
-        receiverScope.cancel()
-    }
 }

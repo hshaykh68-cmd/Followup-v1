@@ -24,6 +24,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import com.followup.presentation.reminder.ReminderViewModel
 import com.followup.presentation.settings.SettingsScreen
 import com.followup.presentation.stats.StatsScreen
 import com.followup.service.notification.NotificationPermissionHelper
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +54,7 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
     val viewModel: ReminderViewModel = hiltViewModel()
+    val scope = rememberCoroutineScope()
 
     // Check onboarding and permission states
     val onboardingCompleted by settingsRepository.isOnboardingCompleted()
@@ -178,7 +181,9 @@ fun AppNavigation(
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(
                     onComplete = {
-                        settingsRepository.setOnboardingCompleted(true)
+                        scope.launch {
+                            settingsRepository.setOnboardingCompleted(true)
+                        }
                         // Navigate to permission screen instead of home
                         navController.navigate(Screen.NotificationPermission.route) {
                             popUpTo(Screen.Onboarding.route) {
@@ -187,7 +192,9 @@ fun AppNavigation(
                         }
                     },
                     onSkip = {
-                        settingsRepository.setOnboardingCompleted(true)
+                        scope.launch {
+                            settingsRepository.setOnboardingCompleted(true)
+                        }
                         // Navigate to permission screen instead of home
                         navController.navigate(Screen.NotificationPermission.route) {
                             popUpTo(Screen.Onboarding.route) {
@@ -202,8 +209,10 @@ fun AppNavigation(
                 NotificationPermissionScreen(
                     notificationPermissionHelper = notificationPermissionHelper,
                     onPermissionGranted = {
-                        settingsRepository.setNotificationListenerPromptShown(true)
-                        settingsRepository.setNotificationListenerEnabled(true)
+                        scope.launch {
+                            settingsRepository.setNotificationListenerPromptShown(true)
+                            settingsRepository.setNotificationListenerEnabled(true)
+                        }
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.NotificationPermission.route) {
                                 inclusive = true
@@ -211,7 +220,9 @@ fun AppNavigation(
                         }
                     },
                     onSkip = {
-                        settingsRepository.setNotificationListenerPromptShown(true)
+                        scope.launch {
+                            settingsRepository.setNotificationListenerPromptShown(true)
+                        }
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.NotificationPermission.route) {
                                 inclusive = true

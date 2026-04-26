@@ -152,7 +152,7 @@ class FollowUpNotificationListener : NotificationListenerService() {
         super.onListenerDisconnected()
         Log.d(TAG, "NotificationListener disconnected")
         // Try to reconnect
-        requestRebind(componentName)
+        requestRebind(android.content.ComponentName(this, this::class.java))
     }
 }
 

@@ -63,7 +63,6 @@ class NotificationFilter @Inject constructor() {
         // Notification categories that suggest it's not a personal message
         private val IGNORED_CATEGORIES = setOf(
             Notification.CATEGORY_PROMO,
-            Notification.CATEGORY_ADVERTISEMENT,
             Notification.CATEGORY_SYSTEM,
             Notification.CATEGORY_SERVICE,
             Notification.CATEGORY_PROGRESS,

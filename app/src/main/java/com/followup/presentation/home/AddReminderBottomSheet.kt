@@ -271,6 +271,8 @@ fun AddReminderBottomSheet(
                             selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = isSelected,
                             borderColor = if (isSelected) {
                                 MaterialTheme.colorScheme.primary
                             } else {
@@ -318,6 +320,8 @@ fun AddReminderBottomSheet(
                         selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = isCustomSelected,
                         borderColor = if (isCustomSelected) {
                             MaterialTheme.colorScheme.primary
                         } else {

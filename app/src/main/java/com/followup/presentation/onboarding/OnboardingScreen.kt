@@ -146,9 +146,7 @@ private fun OnboardingPage(
     pagerState: PagerState
 ) {
     // Calculate offset for parallax effect
-    val pageOffset = remember(page) {
-        derivedPageOffset(pagerState, page)
-    }
+    val pageOffset = derivedPageOffset(pagerState, page)
 
     Column(
         modifier = Modifier

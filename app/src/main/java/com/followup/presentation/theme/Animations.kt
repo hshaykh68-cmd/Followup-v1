@@ -72,7 +72,7 @@ object SpringSpecs {
      * Premium spring for list item animations
      * Slight bounce for satisfying feel
      */
-    val ListItemEnter = spring(
+    val ListItemEnter = spring<Float>(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = Spring.StiffnessLow
     )
@@ -81,7 +81,7 @@ object SpringSpecs {
      * Quick spring for responsive interactions
      * Fast return for snappy feel
      */
-    val QuickResponse = spring(
+    val QuickResponse = spring<Float>(
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessHigh
     )
@@ -90,7 +90,7 @@ object SpringSpecs {
      * Soft spring for gentle animations
      * No bounce, very smooth
      */
-    val Soft = spring(
+    val Soft = spring<Float>(
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessLow
     )
@@ -99,7 +99,7 @@ object SpringSpecs {
      * Expressive spring for emphasized elements
      * Noticeable bounce for delight
      */
-    val Expressive = spring(
+    val Expressive = spring<Float>(
         dampingRatio = Spring.DampingRatioHighBouncy,
         stiffness = Spring.StiffnessMediumLow
     )
@@ -108,7 +108,7 @@ object SpringSpecs {
      * FAB press spring
      * Immediate response with subtle bounce
      */
-    val FabPress = spring(
+    val FabPress = spring<Float>(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = Spring.StiffnessMedium
     )
@@ -117,7 +117,7 @@ object SpringSpecs {
      * Swipe gesture spring
      * Natural resistance and return
      */
-    val Swipe = spring(
+    val Swipe = spring<Float>(
         dampingRatio = Spring.DampingRatioLowBouncy,
         stiffness = Spring.StiffnessLow
     )

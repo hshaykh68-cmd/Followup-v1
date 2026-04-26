@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.followup.domain.model.Reminder
 import com.followup.presentation.theme.doneGreen
 import com.followup.presentation.theme.pendingBlue
@@ -112,7 +113,7 @@ fun SwipeableReminderItem(
         val progress = animatedProgress.value
         when {
             progress > 0.75f && !hasTriggeredConfirmHaptic -> {
-                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 hasTriggeredConfirmHaptic = true
             }
             progress > 0.5f && !hasTriggeredProgressHaptic -> {
