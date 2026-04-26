@@ -22,7 +22,6 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.awaitPointerEventScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import com.followup.presentation.theme.ScaleValues
@@ -100,30 +99,28 @@ fun Modifier.pressableScale(
     val scale = remember { Animatable(1f) }
 
     pointerInput(scalePressed) {
-        awaitPointerEventScope {
-            while (true) {
-                awaitFirstDown()
-                
-                // Immediate press feedback
-                launch {
-                    scale.snapTo(scalePressed)
-                    onPress?.invoke()
-                }
-                
-                // Wait for release
-                waitForUpOrCancellation()
-                
-                // Release animation
-                launch {
-                    scale.animateTo(
-                        targetValue = 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        )
+        while (true) {
+            awaitFirstDown()
+            
+            // Immediate press feedback
+            launch {
+                scale.snapTo(scalePressed)
+                onPress?.invoke()
+            }
+            
+            // Wait for release
+            waitForUpOrCancellation()
+            
+            // Release animation
+            launch {
+                scale.animateTo(
+                    targetValue = 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
                     )
-                    onRelease?.invoke()
-                }
+                )
+                onRelease?.invoke()
             }
         }
     }.graphicsLayer {
