@@ -28,9 +28,9 @@ class NotificationExtractor @Inject constructor() {
         val notification = sbn.notification
         val extras = notification.extras
 
-        // Priority 1: Use messaging-style person name (Android 7.0+)
+        // Priority 1: Use messaging-style person name (Android 9.0+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val messagingStyle = Notification.MessagingStyle.extractMessagingStyleFromNotification(notification)
+            val messagingStyle = notification.extras.getParcelable(Notification.EXTRA_MESSAGING_STYLE) as? Notification.MessagingStyle
             if (messagingStyle != null) {
                 val conversationTitle = messagingStyle.conversationTitle?.toString()
                 if (!conversationTitle.isNullOrBlank()) {

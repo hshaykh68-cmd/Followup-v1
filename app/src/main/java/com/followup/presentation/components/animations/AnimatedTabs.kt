@@ -192,9 +192,7 @@ fun <T> AnimatedTabRow(
                     contentAlignment = Alignment.Center
                 ) {
                     // Animated text weight
-                    val animatedWeight by androidx.compose.runtime.remember { 
-                        androidx.compose.animation.core.Animatable(if (isSelected) 600f else 500f) 
-                    }
+                    val animatedWeight = remember { Animatable(if (isSelected) 600f else 500f) }
                     
                     LaunchedEffect(isSelected) {
                         animatedWeight.animateTo(

@@ -3,6 +3,7 @@ package com.followup.presentation.components.animations
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -105,9 +106,11 @@ fun Modifier.pressableScale(
             }
             
             // Immediate press feedback
-            launch {
-                scale.snapTo(scalePressed)
-                onPress?.invoke()
+            awaitPointerEventScope {
+                launch {
+                    scale.snapTo(scalePressed)
+                    onPress?.invoke()
+                }
             }
             
             // Wait for release
@@ -116,15 +119,17 @@ fun Modifier.pressableScale(
             }
             
             // Release animation
-            launch {
-                scale.animateTo(
-                    targetValue = 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium
+            awaitPointerEventScope {
+                launch {
+                    scale.animateTo(
+                        targetValue = 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        )
                     )
-                )
-                onRelease?.invoke()
+                    onRelease?.invoke()
+                }
             }
         }
     }.graphicsLayer {
